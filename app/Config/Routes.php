@@ -35,10 +35,18 @@ $routes->setAutoRoute(true);
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
-$routes->get('api/getDictionary', 'Content::index');
-$routes->post('api/insertDictionary', 'Content::insertDictionary');
-$routes->post('api/removeDictionary', 'Content::deleteDictionary');
-$routes->post('api/updateDictionary', 'Content::updateDictionary');
+$routes->get('getWords', 'Content::index');
+$routes->post('insertWord', 'Content::insertDictionary');
+$routes->post('removeWord', 'Content::deleteDictionary');
+$routes->post('updateWord', 'Content::updateDictionary');
+$routes->post('getwordById', 'Content::wordById');
+
+$routes->get('getWhatsnew', 'WhatsNew::index');
+$routes->post('getWhatsnewById', 'WhatsNew::whatnewById');
+$routes->post('savewhatsnew', 'WhatsNew::insertWhatsnew');
+$routes->post('updatewhatsnew', 'WhatsNew::updateWhatsnew');
+$routes->post('removewhatsnew', 'WhatsNew::deleteWhatsnew');
+
 
 /*
  * --------------------------------------------------------------------

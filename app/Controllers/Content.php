@@ -41,6 +41,42 @@ class Content extends BaseController
         ];
         return $this->respond($response);
     }
+    public function wordById(){
+
+        $wordId = $this->request->getVar('wordID');
+        $wordDataArr = array();
+        if(!empty($wordId)){
+            $wordData= $this->dictionaryModel->where(['wordID'=>$wordId])->first();
+            if($wordData){
+                foreach ($wordData as $key => $value) {
+                    $wordDataArr[] = $value;
+                    
+                }
+                $response = [
+                    'status'   => 200,
+                    'message' => 'Dictionary Data list',
+                    'data' => $wordDataArr,
+                   
+                ];
+            }else{
+                $response = [
+                    'status'   => 200,
+                    'message' => "Word Id doesn't exist in database.",
+                    'data' => [],
+                   
+                ];
+            }
+                
+        }else{
+            $response = [
+                'status'   => 200,
+                'message' => 'word Id is required',
+                'data'=>[],
+            ];
+        }
+
+        return $this->respond($response);
+    }
     public function insertDictionary(){
         $word = $this->request->getVar('word');
         if(!empty($word)){
@@ -53,17 +89,19 @@ class Content extends BaseController
                 ];
             }else{
                 $meaning = $this->request->getVar('meaning');
-                $example = $this->request->getVar('example');
+                $example = !empty($this->request->getVar('example')) ? $this->request->getVar('example') : '';
                 $createdDate = $this->request->getVar('createdDate');
                 $userID = $this->request->getVar('userID');
+                $status = $this->request->getVar('status');
                 $newsletterDate = $this->request->getVar('newsletterDate');
                 $data = array();
-                if (!empty($meaning) && !empty($example) && !empty($createdDate) && !empty($userID) && !empty($newsletterDate)) {
+                if (!empty($meaning) && !empty($createdDate) && !empty($userID) && !empty($newsletterDate) && !empty($status)) {
                    $data = [
                         'word' => $word,
                         'meaning' => $meaning,
                         'example' => $example,
                         'userID' => $userID,
+                        'status' => $status,
                         'newsletterDate' => $newsletterDate,
                         'createdDate' => $createdDate,
                    ];
@@ -137,10 +175,12 @@ class Content extends BaseController
                 $word = !empty($this->request->getVar('word')) ? $this->request->getVar('word') : $wordData['word'];
                 $meaning = !empty($this->request->getVar('meaning')) ? $this->request->getVar('meaning') : $wordData['meaning'];
                 $example = !empty($this->request->getVar('example')) ? $this->request->getVar('example') : $wordData['example'];
+                $status = !empty($this->request->getVar('status')) ? $this->request->getVar('status') : $wordData['status'];
                 $newsletterDate = !empty($this->request->getVar('newsletterDate')) ? $this->request->getVar('newsletterDate') : $wordData['newsletterDate'];
                 $updateData = [
                     'word' => $word,
                     'meaning' => $meaning,
+                    'status' => $status,
                     'example' => $example,
                     'newsletterDate' => $newsletterDate,
                 ];
