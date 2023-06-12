@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\WhatsNewModel;
+use App\Models\OutoftheboxModel;
 use CodeIgniter\API\ResponseTrait;
 
 class WhatsNew extends BaseController
@@ -17,6 +18,7 @@ class WhatsNew extends BaseController
         $this->db = \Config\Database::connect('default');
 
         $this->whatsNewModel = model('WhatsNewModel', true, $this->db);
+        $this->outoftheboxModel = model('OutoftheboxModel', true, $this->db);
         
 	}
 
@@ -31,10 +33,10 @@ class WhatsNew extends BaseController
                
             }
             $message = 'All whatsNew Data list';
-            $suc_msg = 'True';
+            $suc_msg = 'true';
         }else{
             $message = 'There is no data available';
-            $suc_msg = 'False';
+            $suc_msg = 'false';
         }
         $response = [
             'status'   => 200,
@@ -45,7 +47,7 @@ class WhatsNew extends BaseController
         ];
         return $this->respond($response);
     }
-    public function whatnewById(){
+    public function whatsnewById(){
 
         $whatsNewID = $this->request->getVar('whatsNewID');
         $whatsnewDataArr = array();
@@ -58,7 +60,7 @@ class WhatsNew extends BaseController
                 }
                 $response = [
                     'status'   => 200,
-                    'success' => 'True',
+                    'success' => 'true',
                     'message' => 'Whatsnew Data list',
                     'data' => $whatsnewDataArr,
                    
@@ -66,7 +68,7 @@ class WhatsNew extends BaseController
             }else{
                 $response = [
                     'status'   => 200,
-                    'success' => 'False',
+                    'success' => 'false',
                     'message' => "whatsNew Id doesn't exist in database.",
                     'data' => [],
                    
@@ -76,6 +78,7 @@ class WhatsNew extends BaseController
         }else{
             $response = [
                 'status'   => 200,
+                'success' => 'false',
                 'message' => 'whatsNew Id is required',
                 'data'=>[],
             ];
@@ -140,14 +143,14 @@ class WhatsNew extends BaseController
             if ($insetData) {
                     $response = [
                         'status'   => 200,
-                        'success' => 'True',
+                        'success' => 'true',
                         'message' => 'Whatsnew Data is inserted sucessfully.',
                         'data'=> $data,
                     ];
             }else{
                 $response = [
                     'status'   => 500,
-                    'success' => 'False',
+                    'success' => 'false',
                     'message' => 'Error Found',
                     'data'=>[],
                 ];
@@ -181,20 +184,21 @@ class WhatsNew extends BaseController
                 if($updata){
                     $response = [
                         'status'  => 200,
-                        'success' => 'True',
+                        'success' => 'true',
                         'message' => 'Whatsnew Data is updated sucessfully.',
                         'updated data'=> $updateData,
                     ];
                 }else{
                     $response = [
                         'status'  => 500,
-                        'success' => 'False',
+                        'success' => 'false',
                         'message' => 'Error found.',
                     ];
                 }
             }else{
                 $response = [
                     'status'   => 200,
+                    'success' => 'false',
                     'message' => "whatsnew Id doesn't exit in Database.",
                     'data'=>[],
                 ];
@@ -202,6 +206,7 @@ class WhatsNew extends BaseController
         }else{
             $response = [
                 'status'   => 200,
+                'success' => 'false',
                 'message' => 'Whatsnew id is required',
                 'data'=>[],
             ];
@@ -216,7 +221,7 @@ class WhatsNew extends BaseController
                 $del_whatsnewData = $this->whatsNewModel->where('whatsNewID', $whatsNewID)->delete();
                 $response = [
                     'status'   => 200,
-                    'success' => 'True',
+                    'success' => 'true',
                     'message' => 'Whatsnew is deleted successfully.',
                     'data' => [
                         'whatsNewID'=> intval($whatsNewID),
@@ -225,7 +230,7 @@ class WhatsNew extends BaseController
             }else{
                 $response = [
                     'status'   => 200,
-                    'success' => 'False',
+                    'success' => 'false',
                     'message' => 'Whatsnew id not found',
                     'data'=>[],
                 ];
@@ -233,10 +238,114 @@ class WhatsNew extends BaseController
         }else{
             $response = [
                 'status'   => 200,
+                'success' => 'false',
                 'message' => 'Whatsnew id is required',
                 'data'=>[],
             ];
         }
+        return $this->respond($response);
+    }
+    public function getOutofthebxData()
+    {
+        $getData = array(); 
+        $outoftheboxData = $this->outoftheboxModel->orderBy('createdDate', 'desc')->findAll();
+        
+        if(!empty($outoftheboxData)){
+            foreach ($outoftheboxData as $key => $value) {
+                $getData[] = $value;
+               
+            }
+            $message = 'All outofthebox Data list';
+            $suc_msg = 'true';
+        }else{
+            $message = 'There is no data available';
+            $suc_msg = 'false';
+        }
+        $response = [
+            'status'   => 200,
+            'success'  => $suc_msg,
+            'message' => $message,
+            'data' => $getData,
+           
+        ];
+        return $this->respond($response);
+    }
+    public function insertoutofthebox(){
+        $title = $this->request->getVar('title');
+        if(empty($title)){
+            $response = [
+                'status'   => 401,
+                'message' => 'Please send title'
+            ];
+            return $this->respond($response);
+        }
+        $content = $this->request->getVar('content');
+        if(empty($content)){
+            $response = [
+                'status'   => 401,
+                'message' => 'Please send Content'
+            ];
+            return $this->respond($response);
+        }  
+        $userID = $this->request->getVar('userID');
+        if(empty($userID)){
+            $response = [
+                'status'   => 401,
+                'message' => 'Please send userID'
+            ];
+            return $this->respond($response);
+        } 
+        $status = $this->request->getVar('status');
+        if(empty($userID)){
+            $response = [
+                'status'   => 401,
+                'message' => 'Please send status'
+            ];
+            return $this->respond($response);
+        }  
+        $newsletterDate = $this->request->getVar('newsletterDate');
+        if(empty($userID)){
+            $response = [
+                'status'   => 401,
+                'message' => 'Please send newsletterDate'
+            ];
+            return $this->respond($response);
+        } 
+
+        $createdDate = date('Y-m-d h:i:s');
+        $data = array();
+        $data = [
+                'title' => $title,
+                'content' => $content,
+                'userID' => $userID,
+                'status' => $status,
+                'newsletterDate' => $newsletterDate,
+                'createdDate' => $createdDate,
+            ];
+        try {
+            $insetData = $this->whatsNewModel->insert($data);
+            if ($insetData) {
+                    $response = [
+                        'status'   => 200,
+                        'success' => 'true',
+                        'message' => 'Whatsnew Data is inserted sucessfully.',
+                        'data'=> $data,
+                    ];
+            }else{
+                $response = [
+                    'status'   => 500,
+                    'success' => 'false',
+                    'message' => 'Error Found',
+                    'data'=>[],
+                ];
+            }
+        } catch (\Throwable $th) {
+            $response = [
+                'status'   => 500,
+                'success' => 'false',
+                'message' => 'Some Error Occurred!'. $th->message,
+            ];
+        }      
         return $this->respond($response);
     }
 }

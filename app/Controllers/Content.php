@@ -30,11 +30,15 @@ class Content extends BaseController
                
             }
             $message = 'All Dictionary Data list';
+            $msg = 'true';
+            
         }else{
             $message = 'There is no data available';
+            $msg = 'false';
         }
         $response = [
             'status'   => 200,
+            'success' => $msg,
             'message' => $message,
             'data' => $getData,
            
@@ -54,6 +58,7 @@ class Content extends BaseController
                 }
                 $response = [
                     'status'   => 200,
+                    'success' => 'true',
                     'message' => 'Dictionary Data list',
                     'data' => $wordDataArr,
                    
@@ -61,6 +66,7 @@ class Content extends BaseController
             }else{
                 $response = [
                     'status'   => 200,
+                    'success' => 'false',
                     'message' => "Word Id doesn't exist in database.",
                     'data' => [],
                    
@@ -70,6 +76,7 @@ class Content extends BaseController
         }else{
             $response = [
                 'status'   => 200,
+                'success' => 'false',
                 'message' => 'word Id is required',
                 'data'=>[],
             ];
@@ -79,64 +86,92 @@ class Content extends BaseController
     }
     public function insertDictionary(){
         $word = $this->request->getVar('word');
-        if(!empty($word)){
-            $wordData= $this->dictionaryModel->where(['word'=>$word])->first();
-            if(!empty($wordData)){
-                $response = [
-                    'status'   => 200,
-                    'message' => 'Word is already exist in Database',
-                    'data'=>[],
-                ];
-            }else{
-                $meaning = $this->request->getVar('meaning');
-                $example = !empty($this->request->getVar('example')) ? $this->request->getVar('example') : '';
-                $createdDate = $this->request->getVar('createdDate');
-                $userID = $this->request->getVar('userID');
-                $status = $this->request->getVar('status');
-                $newsletterDate = $this->request->getVar('newsletterDate');
-                $data = array();
-                if (!empty($meaning) && !empty($createdDate) && !empty($userID) && !empty($newsletterDate) && !empty($status)) {
-                   $data = [
-                        'word' => $word,
-                        'meaning' => $meaning,
-                        'example' => $example,
-                        'userID' => $userID,
-                        'status' => $status,
-                        'newsletterDate' => $newsletterDate,
-                        'createdDate' => $createdDate,
-                   ];
-                   $insetData = $this->dictionaryModel->insert($data);
-                   if ($insetData) {
-                        $response = [
-                            'status'   => 200,
-                            'message' => 'Dictionary Data is inserted sucessfully.',
-                            'data'=> $data,
-                        ];
-                   }else{
-                    $response = [
-                        'status'   => 500,
-                        'message' => 'Error Found',
-                        'data'=>[],
-                    ];
-                   }
-                }else{
+        if(empty($word)){
+            $response = [
+                'status'   => 401,
+                'message' => 'Please send word'
+            ];
+            return $this->respond($response);
+        }
+        $meaning = $this->request->getVar('meaning');
+        if(empty($meaning)){
+            $response = [
+                'status'   => 401,
+                'message' => 'Please send meaning'
+            ];
+            return $this->respond($response);
+        }  
+        $example = $this->request->getVar('example');
+        if(empty($example)){
+            $response = [
+                'status'   => 401,
+                'message' => 'Please send example'
+            ];
+            return $this->respond($response);
+        }  
+        $userID = $this->request->getVar('userID');
+        if(empty($userID)){
+            $response = [
+                'status'   => 401,
+                'message' => 'Please send userID'
+            ];
+            return $this->respond($response);
+        } 
+        $status = $this->request->getVar('status');
+        if(empty($userID)){
+            $response = [
+                'status'   => 401,
+                'message' => 'Please send status'
+            ];
+            return $this->respond($response);
+        }  
+        $newsletterDate = $this->request->getVar('newsletterDate');
+        if(empty($userID)){
+            $response = [
+                'status'   => 401,
+                'message' => 'Please send newsletterDate'
+            ];
+            return $this->respond($response);
+        } 
+
+        $createdDate = date('Y-m-d h:i:s');
+        $data = array();
+        $data = [
+                'word' => $word,
+                'meaning' => $meaning,
+                'example' => $example,
+                'userID' => $userID,
+                'status' => $status,
+                'newsletterDate' => $newsletterDate,
+                'createdDate' => $createdDate,
+            ];
+        try {
+            $insetData = $this->whatsNewModel->insert($data);
+            if ($insetData) {
                     $response = [
                         'status'   => 200,
-                        'message' => 'Please fill the required field',
-                        'data'=>[],
+                        'success' => 'true',
+                        'message' => 'Dictionary Data is inserted sucessfully.',
+                        'data'=> $data,
                     ];
-                }
+            }else{
+                $response = [
+                    'status'   => 500,
+                    'success' => 'false',
+                    'message' => 'Error Found',
+                    'data'=>[],
+                ];
             }
-        }else{
+        } catch (\Throwable $th) {
             $response = [
-                'status'   => 200,
-                'message' => 'Please fill the required field',
-                'data'=>[],
+                'status'   => 500,
+                'success' => 'false',
+                'message' => 'Some Error Occurred!'. $th->message,
             ];
-        }
-
+        }      
         return $this->respond($response);
     }
+
     public function deleteDictionary(){
         $wordId = $this->request->getVar('wordID');
         if(!empty($wordId)){
@@ -145,6 +180,7 @@ class Content extends BaseController
                 $del_wordData = $this->dictionaryModel->where('wordID', $wordId)->delete();
                 $response = [
                     'status'   => 200,
+                    'success' => 'true',
                     'message' => 'Word is deleted successfully.',
                     'data' => [
                         'wordID'=> intval($wordId),
@@ -153,6 +189,7 @@ class Content extends BaseController
             }else{
                 $response = [
                     'status'   => 200,
+                    'success' => 'false',
                     'message' => 'Word id not found',
                     'data'=>[],
                 ];
@@ -160,12 +197,14 @@ class Content extends BaseController
         }else{
             $response = [
                 'status'   => 200,
+                'success' => 'false',
                 'message' => 'Word id is required',
                 'data'=>[],
             ];
         }
         return $this->respond($response);
     }
+   
     public function updateDictionary(){
         $wordId = $this->request->getVar('wordID');
         $updateData = array();
@@ -188,18 +227,21 @@ class Content extends BaseController
                 if($updata){
                     $response = [
                         'status'  => 200,
+                        'success' => 'true',
                         'message' => 'Dictionary Data is updated sucessfully.',
                         'updated data'=> $updateData,
                     ];
                 }else{
                     $response = [
                         'status'  => 500,
+                        'success' => 'false',
                         'message' => 'Error found.',
                     ];
                 }
             }else{
                 $response = [
                     'status'   => 200,
+                    'success' => 'false',
                     'message' => "Word Id doesn't exit in Database.",
                     'data'=>[],
                 ];

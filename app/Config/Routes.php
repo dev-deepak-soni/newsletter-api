@@ -42,11 +42,12 @@ $routes->post('updateWord', 'Content::updateDictionary');
 $routes->post('getwordById', 'Content::wordById');
 
 $routes->get('getWhatsnew', 'WhatsNew::index');
-$routes->post('getWhatsnewById', 'WhatsNew::whatnewById');
+$routes->post('getWhatsnewById', 'WhatsNew::whatsnewById');
 $routes->post('savewhatsnew', 'WhatsNew::insertWhatsnew');
 $routes->post('updatewhatsnew', 'WhatsNew::updateWhatsnew');
 $routes->post('removewhatsnew', 'WhatsNew::deleteWhatsnew');
 
+$routes->get('getOutoftheboxData', 'WhatsNew::getOutofthebxData');
 
 /*
  * --------------------------------------------------------------------
