@@ -291,7 +291,7 @@
 
 <footer>
     <div class="environment">
-
+        <?php  echo getenv('app.baseURL');?>
         <p>Page rendered in {elapsed_time} seconds</p>
 
         <p>Environment: <?= ENVIRONMENT ?></p>
